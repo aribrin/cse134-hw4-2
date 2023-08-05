@@ -1,96 +1,102 @@
-// Define the custom element
+// script.js
+// Define the CustomElement
 class ProjectCard extends HTMLElement {
-    constructor() {
+  constructor() {
       super();
+
+      // Create a shadow DOM
       this.attachShadow({ mode: 'open' });
-      this.shadowRoot.appendChild(document.importNode(projectCardTemplate.content, true));
-    }
-  
-    connectedCallback() {
-      // Populate the custom element with data
-      let h2 = this.shadowRoot.querySelector('h2');
-      let img = this.shadowRoot.querySelector('img');
-      let p = this.shadowRoot.querySelector('p');
-      let a = this.shadowRoot.querySelector('a');
-  
-      h2.textContent = this.getAttribute('name');
-      img.src = this.getAttribute('image');
-      img.alt = this.getAttribute('alt');
-      p.textContent = this.getAttribute('description');
-      a.href = this.getAttribute('url');
-    }
+
+      // Define the HTML template for the custom element
+      this.shadowRoot.innerHTML = `
+          <div class="project-card">
+              <h2></h2>
+              <img src="" alt="">
+              <p></p>
+              <a href="#" target="_blank">Read More</a>
+          </div>
+      `;
   }
-  
-// Register the custom element
-customElements.define('project-card', ProjectCard);
 
-// Fetch data from the server and populate cards
-async function fetchAndPopulateData(url) {
-  try {
-    let response = await fetch(url);
-    let data = await response.json();
+  connectedCallback() {
+      // Get the data from the element attributes
+      let projectName = this.getAttribute('project-name');
+      let imageUrl = this.getAttribute('image-url');
+      let description = this.getAttribute('description');
+      let readMoreLink = this.getAttribute('read-more-link');
 
-    let projectCardContainer = document.getElementById('project-card-container');
-    projectCardContainer.innerHTML = '';
-
-    data.forEach((project) => {
-      let projectCard = document.createElement('project-card');
-      projectCard.setAttribute('name', project.name);
-      projectCard.setAttribute('image', project.image);
-      projectCard.setAttribute('alt', project.alt);
-      projectCard.setAttribute('description', project.description);
-      projectCard.setAttribute('url', project.url);
-      projectCardContainer.appendChild(projectCard);
-    });
-  } catch (error) {
-    console.error('Error fetching data:', error);
+      // Update the content in the shadow DOM
+      this.shadowRoot.querySelector('h2').textContent = projectName;
+      this.shadowRoot.querySelector('img').setAttribute('src', imageUrl);
+      this.shadowRoot.querySelector('img').setAttribute('alt', projectName);
+      this.shadowRoot.querySelector('p').textContent = description;
+      this.shadowRoot.querySelector('a').setAttribute('href', readMoreLink);
   }
 }
 
-// Load Local button click event
-let loadLocalButton = document.getElementById('load-local');
-loadLocalButton.addEventListener('click', (event) => {
-  event.preventDefault(); 
-  // Fetch data from localStorage and populate cards
-  let localData = JSON.parse(localStorage.getItem('projects'));
-  if (localData && Array.isArray(localData)) {
-    let projectCardContainer = document.getElementById('project-card-container');
-    projectCardContainer.innerHTML = '';
+// Register the CustomElement
+customElements.define('project-card', ProjectCard);
 
-    localData.forEach((project) => {
-      let projectCard = document.createElement('project-card');
-      projectCard.setAttribute('name', project.name);
-      projectCard.setAttribute('image', project.image);
-      projectCard.setAttribute('alt', project.alt);
-      projectCard.setAttribute('description', project.description);
-      projectCard.setAttribute('url', project.url);
-      projectCardContainer.appendChild(projectCard);
-    });
-  } else {
-    alert('No local data found. Please fetch data from the remote server first.');
-  }
+// Data loading
+document.getElementById('loadLocal').addEventListener('click', () => {
+  // Fetch data from local storage (Assuming you have stored data in 'localData' key)
+  const localData = JSON.parse(localStorage.getItem('localData'));
+  populateCards(localData);
 });
 
-// Load Remote button click event
-let loadRemoteButton = document.getElementById('load-remote');
-loadRemoteButton.addEventListener('click', (event) => {
-  event.preventDefault(); 
-  // Fetch data from the remote server
-  let remoteUrl = 'https://api.jsonbin.io/v3/b/64ce6f5fb89b1e2299cbdbed'; // 
-  fetchAndPopulateData(remoteUrl)
-    .then((data) => {
-      // Save data to localStorage for future use
-      localStorage.setItem('projects', JSON.stringify(data));
-    })
-    .catch((error) => {
+document.getElementById('loadRemote').addEventListener('click', async () => {
+  try {
+      // Fetch data from a remote server (e.g., JSONPlaceholder)
+      const response = await fetch('https://jsonplaceholder.typicode.com/todos');
+      const remoteData = await response.json();
+      populateCards(remoteData);
+  } catch (error) {
       console.error('Error fetching remote data:', error);
-    });
-});
-
-// Initial load from localStorage (if available)
-window.addEventListener('DOMContentLoaded', () => {
-  let localData = JSON.parse(localStorage.getItem('projects'));
-  if (localData) {
-    fetchAndPopulateData(localData);
   }
 });
+const root = document.documentElement;
+const colors = ['#FF5733', '#33FF57', '#5733FF', '#FF33E5', '#33E5FF'];
+root.style.setProperty('--card-border-color', colors[0]);
+
+// Method to populate local storage with sample data
+document.getElementById('populateLocalStorage').addEventListener('click', () => {
+  const sampleData = [
+      {
+          id: 1,
+          title: 'Project 1',
+          imageUrl: 'path/to/image1.jpg',
+          description: 'This is project 1 description.',
+          readMoreLink: 'https://example.com/project1'
+      },
+      {
+          id: 2,
+          title: 'Project 2',
+          imageUrl: 'path/to/image2.jpg',
+          description: 'This is project 2 description.',
+          readMoreLink: 'https://example.com/project2'
+      },
+      // Add more sample data as needed
+  ];
+
+  localStorage.setItem('localData', JSON.stringify(sampleData));
+});
+
+function populateCards(data) {
+  let cardContainer = document.getElementById('cardContainer');
+
+  // Clear the existing content
+  cardContainer.innerHTML = '';
+
+  // Create and append new project-card elements with data
+  data.forEach(item => {
+      let card = document.createElement('project-card');
+      card.className = "project-card";
+      card.setAttribute('project-name', item.title);
+      card.setAttribute('image-url', 'path/to/image.jpg'); // Replace with actual image URL
+      card.setAttribute('description', item.body);
+      card.setAttribute('read-more-link', 'https://example.com'); // Replace with actual read more link
+      cardContainer.appendChild(card);
+  });
+
+  
+}
