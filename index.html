@@ -70,6 +70,63 @@
       use a local file, CDN or other simple method to load the framework or library. You should not 
       require the grader to install anything or run any build scripts.
     -->
+
+    <button id="load-local">Load Local</button>
+    <button id="load-remote">Load Remote</button>
+    <div id="project-card-container"></div>
+
+    <template id="project-card-template">
+      <style>
+        /* Define CSS variables for card styling */
+        :host {
+          --card-bg-color: #f0f0f0;
+          --card-text-color: #333;
+          --card-padding: 10px;
+        }
+        /* Define card layout using CSS grid */
+        .project-card {
+          display: grid;
+          grid-template-rows: auto 1fr auto auto;
+          gap: var(--card-padding);
+          background-color: var(--card-bg-color);
+          padding: var(--card-padding);
+        }
+        .project-card img {
+          width: 100%;
+          height: auto;
+        }
+        .project-card h2 {
+          font-size: 1.5rem;
+          color: var(--card-text-color);
+          margin: 0;
+        }
+        .project-card p {
+          color: var(--card-text-color);
+          margin: 0;
+        }
+        .project-card a {
+          color: #007bff;
+          text-decoration: none;
+        }
+      </style>
+      <div class="project-card">
+        <h2></h2>
+        <img src="" alt="">
+        <p></p>
+        <a href="#" target="_blank">Read More</a>
+      </div>
+    </template>
+  
+    <!-- Include the custom element in the HTML file -->
+    <project-card>
+      <!-- Populate the custom element with data -->
+      <h2>Project Name</h2>
+      <img src="project_image.jpg" alt="Project Image">
+      <p>Project description goes here...</p>
+      <a href="project_link.html" target="_blank">Read More</a>
+    </project-card>
+  
+<script src="projcard-script.js"></script> 
 </body>
 
 </html>
